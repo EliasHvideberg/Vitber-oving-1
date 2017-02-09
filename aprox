@@ -1,0 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+a = 0
+b = 1
+N= 30
+x_uniform = np.linspace(a, b, N)
+
+def function(x):
+    return np.exp(x)* np.cos(8*np.pi*x)
+
+def doublederive(x):
+    return -(np.exp(x)*np.cos(8*np.pi*x)-16*np.exp(x)*np.pi*np.sin(8*np.pi*x)-64*np.exp(x)*np.pi**2*np.cos(8*np.pi*x))
+
+def spectral_laplace_A(x):
+    N = len(x)
+    #a, b = x[0], x[N - 1]
+    A = np.zeros((N, N))
+    # FIXIT: bestem A_ij
+    A[0][0] = 1.0
+    A[N - 1][N - 1] = 1.0
+    for j in range(1, N - 1):
+        for i in range(N):
+            A[j][i] = -find_second_derivative_of_lx(x, j, i)
+    return A
+
+
+def find_second_derivative_of_lx(x, j, i):
+    N = len(x)
+    lx = 0.0
+    c1 = 1.0
+    for k in range(N):
+        for m in range(N):
+            secondderivative_lx = 1.0
+            if (k != m):
+                for n in range(N):
+                    if (n != i and n != k and n != m):
+                        secondderivative_lx *= (x[j] - x[n])
+                lx += secondderivative_lx
+    for p in range(N):
+        if (p != i):
+            c1 *= 1.0 / (x[i] - x[p])
+    return lx * c1
+
+
+def spectral_laplace_B(x,ua,ub):
+    N = len(x)
+    #a,b = x[0],x[N-1]
+    B = np.zeros(N)
+    # FIXIT: bestem B_i
+    B[0] = ua
+    B[N-1] = ub
+    for i in range(1,N-1):
+        B[i] = -function(x[i])
+    return B
+    # set up the spectral method for Laplace eqn and solve the resulting system
+
+def spectral_laplace(x):
+    ua = 0
+    ub = 1
+    A = spectral_laplace_A(x)
+    B = spectral_laplace_B(x,ua,ub)
+
+    # solve the system
+    return np.linalg.solve(A,B)
+
+plt.plot()
+plt.xlim(0,1)
+plt.ylim(-2,2)
+x = np.linspace(0,1,100)
+plt.plot(x_uniform, spectral_laplace(x_uniform), label=r'$Approx$')
+plt.plot(x, function(x) ,label=r'$F(x)$')
+plt.plot(x, doublederive(x) ,label=r'$dF2(x)$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Aproximasjon')
+plt.legend()
+plt.show()

@@ -56,7 +56,6 @@ def spectral_laplace_B(x,ua,ub, my, sigma):
     for i in range(1,N-1):
         B[i] = -doublederive(x[i], my, sigma)
     return B
-    # set up the spectral method for Laplace eqn and solve the resulting system
 
 def spectral_laplace(x, my, sigma):
     ua = -1
